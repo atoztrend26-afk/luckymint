@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NumShield Pro - Advanced Number Analyzer & Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-full flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-md">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-900">NumShield Pro</h1>
+                    <p class="text-xs text-slate-500">Advanced Number Analyzer & Offset Prediction Tool (1–49)</p>
+                </div>
+            </div>
+
+            <!-- Prominent Download & Tab Controls -->
+            <div class="flex items-center gap-3 flex-wrap">
+                <button onclick="downloadAppFile()" class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm transition-all flex items-center space-x-1.5 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span>📥 Download App File</span>
+                </button>
+                <nav class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button id="tabBtn1" onclick="switchTab(1)" class="px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 bg-white text-indigo-600 shadow-sm cursor-pointer">
+                        Shield & Generator
+                    </button>
+                    <button id="tabBtn2" onclick="switchTab(2)" class="px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer">
+                        Offset Analyzer
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
+
+        <!-- GLOBAL COMMON CLIPBOARD BOX (Top of app, Collapsed by default) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <button onclick="toggleSection('globalClipboardBody', 'globalClipChevron')" class="w-full px-6 py-4 flex justify-between items-center bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer select-none">
+                <span class="text-sm font-bold text-slate-800 flex items-center space-x-2">
+                    <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                    <span>Global Clipboard Tool (Quick Paste & Copy)</span>
+                </span>
+                <svg id="globalClipChevron" class="w-5 h-5 text-slate-500 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <div id="globalClipboardBody" class="hidden p-6 space-y-4 border-t border-slate-100">
+                <textarea id="globalClipboardText" rows="3" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Paste or type text here..."></textarea>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="pasteToGlobalClipboard()" class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-2xs transition-colors flex items-center space-x-1.5 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                        <span>Paste from Clipboard</span>
+                    </button>
+                    <button onclick="copyFromGlobalClipboard()" class="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors flex items-center space-x-1.5 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                        <span>Copy Box Content</span>
+                    </button>
+                    <button onclick="clearGlobalClipboard()" class="px-4 py-2 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-colors flex items-center space-x-1.5 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <span>Clear</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 1: Exclusion Shield & Generator -->
+        <section id="tabContent1" class="space-y-6">
+            <!-- Collapsible Input Matrix Section (Expanded by default) -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div onclick="toggleSection('tab1MatrixBody', 'tab1MatrixChevron')" class="px-6 py-4 flex justify-between items-center bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer select-none">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                        <h2 class="text-sm font-bold text-slate-900">Input Matrix (5 Sets of 7 Numbers)</h2>
+                    </div>
+                    <svg id="tab1MatrixChevron" class="w-5 h-5 text-slate-500 transform transition-transform duration-200 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+                <div id="tab1MatrixBody" class="p-6 md:p-8 space-y-6 border-t border-slate-100">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <p class="text-xs text-slate-500">Enter numbers between 1 and 49. Typing 2 digits or numbers ≥ 5 auto-advances to the next box.</p>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="fillTab1Sample()" class="px-3.5 py-2 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors border border-indigo-200 flex items-center space-x-1.5 cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                <span>Auto-Fill Sample</span>
+                            </button>
+                            <button onclick="clearTab1Inputs()" class="px-3.5 py-2 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-colors border border-rose-200 flex items-center space-x-1.5 cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                <span>Clear All</span>
+                            </button>
+                            <button onclick="copyAllTab1Inputs()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors border border-slate-200 flex items-center space-x-1.5 cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <span>Copy All Inputs</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 5x7 Number Input Grid -->
+                    <div id="tab1Grid" class="space-y-3">
+                        <!-- Injected via JS -->
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div id="tab1InputSummary" class="text-sm font-medium text-slate-600">
+                            Valid numbers entered: <span id="tab1Count" class="text-indigo-600 font-bold">0</span> / 35
+                        </div>
+                        <button onclick="calculateAndGenerateTab1()" class="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md transition-all duration-200 flex items-center justify-center space-x-2 cursor-pointer">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m6 9l-2 2m0 0l-2-2m2 2V9"></path>
+                            </svg>
+                            <span>Calculate & Generate</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 1 Results Container (Collapsible once generated) -->
+            <div id="tab1ResultsContainer" class="hidden space-y-6">
+                
+                <!-- SECTION A: Set 1 vs Remaining Sets Comparison (Compact Horizontal) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div onclick="toggleSection('tab1ResSet1Body', 'tab1ResSet1Chevron')" class="px-6 py-4 flex justify-between items-center bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer select-none">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                            <h3 class="text-sm font-bold text-slate-900">Set 1 vs Remaining Sets Comparison</h3>
+                        </div>
+                        <svg id="tab1ResSet1Chevron" class="w-5 h-5 text-slate-500 transform transition-transform duration-200 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div id="tab1ResSet1Body" class="p-6 md:p-8 space-y-4 border-t border-slate-100">
+                        <div class="flex justify-end">
+                            <button onclick="copySection('set1CompareList', 'Set 1 Comparison')" class="px-3.5 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors flex items-center space-x-1 cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <span>Copy Comparison</span>
+                            </button>
+                        </div>
+                        <div id="set1CompareList" class="space-y-3">
+                            <!-- Horizontal comparison cards injected -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION B: Missing Numbers (1-49 Not in 5 Sets) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div onclick="toggleSection('tab1ResMissingBody', 'tab1ResMissingChevron')" class="px-6 py-4 flex justify-between items-center bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer select-none">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <h3 class="text-sm font-bold text-slate-900">Missing Numbers (1–49 Not in 5 Sets)</h3>
+                        </div>
+                        <svg id="tab1ResMissingChevron" class="w-5 h-5 text-slate-500 transform transition-transform duration-200 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div id="tab1ResMissingBody" class="p-6 md:p-8 space-y-4 border-t border-slate-100">
+                        <div class="flex justify-end">
+                            <button onclick="copyMissingNumbers()" class="px-3.5 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors flex items-center space-x-1 cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <span>Copy Missing Numbers</span>
+                            </button>
+                        </div>
+                        <div id="missingResultList" class="flex flex-wrap gap-2 p-4 bg-slate-50 border border-slate-100 rounded-xl min-h-[60px] items-center">
+                            <!-- Badges injected -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION C: 10 Random Generated Sets -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div onclick="toggleSection('tab1Res3Body', 'tab1Res3Chevron')" class="px-6 py-4 flex justify-between items-center bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer select-none">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                            <h3 class="text-sm font-bold text-slate-900">10 Random Generated Sets (6 Numbers Each)</h3>
+                        </div>
+                        <svg id="tab1Res3Chevron" class="w-5 h-5 text-slate-500 transform transition-transform duration-200 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div id="tab1Res3Body" class="p-6 md:p-8 space-y-4 border-t border-slate-100">
+                        <div class="flex justify-end">
+                            <button onclick="copyAll10Sets()" class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow-sm flex items-center space-x-1.5 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <span>Copy All 10 Sets</span>
+                            </button>
+                        </div>
+                        <div id="generatedSetsList" class="space-y-3">
+                            <!-- Injected generated rows -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION D: Entered Numbers & Occurrence Breakdown (At the Bottom, Horizontal Compact) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div onclick="toggleSection('tab1Res1Body', 'tab1Res1Chevron')" class="px-6 py-4 flex justify-between items-center bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer select-none">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <h3 class="text-sm font-bold text-slate-900">Entered Numbers & Occurrence Mapping (Set & Position)</h3>
+                        </div>
+                        <svg id="tab1Res1Chevron" class="w-5 h-5 text-slate-500 transform transition-transform duration-200 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div id="tab1Res1Body" class="p-6 md:p-8 space-y-4 border-t border-slate-100">
+                        <div class="flex justify-end">
+                            <button onclick="copySection('matchedResultList', 'Entered Numbers & Occurrences')" class="px-3.5 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors flex items-center space-x-1 cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <span>Copy List</span>
+                            </button>
+                        </div>
+                        <div id="matchedResultList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4 bg-slate-50 border border-slate-100 rounded-xl">
+                            <!-- Cards injected -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 2: Offset Analyzer -->
+        <section id="tabContent2" class="hidden space-y-6">
+            <!-- Collapsible Offset Input Section -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div onclick="toggleSection('tab2InputBody', 'tab2InputChevron')" class="px-6 py-4 flex justify-between items-center bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer select-none">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+                        <h2 class="text-sm font-bold text-slate-900">Offset Analyzer Input (1 Set of 6 Numbers)</h2>
+                    </div>
+                    <svg id="tab2InputChevron" class="w-5 h-5 text-slate-500 transform transition-transform duration-200 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+                <div id="tab2InputBody" class="p-6 md:p-8 space-y-6 border-t border-slate-100">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <p class="text-xs text-slate-500">Generates 4 sets (n-2, n-1, n+1, n+2). By default, no red highlighting or position details are shown until compared.</p>
+                        <div class="flex items-center gap-2">
+                            <button onclick="fillTab2Sample()" class="px-3.5 py-2 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors border border-indigo-200 cursor-pointer">
+                                Sample Input
+                            </button>
+                            <button onclick="clearTab2Inputs()" class="px-3.5 py-2 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-colors border border-rose-200 cursor-pointer">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 1x6 Input Row -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3" id="tab2InputRow">
+                        <!-- Injected via JS -->
+                    </div>
+
+                    <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                        <button onclick="calculateOffsets()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md transition-all duration-200 cursor-pointer">
+                            Generate Offset Sets
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Offset Results Container -->
+            <div id="offsetResultsContainer" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div onclick="toggleSection('tab2ResBody', 'tab2ResChevron')" class="px-6 py-4 flex justify-between items-center bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer select-none">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                        <h3 class="text-sm font-bold text-slate-900">Generated Offset Sets (Horizontal Order)</h3>
+                    </div>
+                    <svg id="tab2ResChevron" class="w-5 h-5 text-slate-500 transform transition-transform duration-200 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+                <div id="tab2ResBody" class="p-6 md:p-8 space-y-6 border-t border-slate-100">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <p class="text-xs text-slate-500">Click <span class="font-bold text-indigo-600">Compare with Tab 1</span> to verify against Tab 1 inputs and reveal matching positions.</p>
+                        <div class="flex items-center gap-2">
+                            <button onclick="compareWithTab1()" class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow-sm flex items-center space-x-1.5 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <span>Compare with Tab 1</span>
+                            </button>
+                            <button onclick="copyAllOffsets()" class="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors flex items-center space-x-1.5 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <span>Copy All 4 Sets</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="offsetRowsList" class="space-y-4">
+                        <!-- Injected 4 offset sets rows -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            NumShield Pro &bull; Advanced Client Analyzer
+        </div>
+    </footer>
+
+    <!-- Custom Notification Modal -->
+    <div id="customModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100 transform transition-all">
+            <div class="flex items-center space-x-3 mb-4">
+                <div id="modalIconBg" class="p-2 rounded-xl bg-amber-50 text-amber-600">
+                    <svg id="modalIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <h3 id="modalTitle" class="text-lg font-bold text-slate-900">Notice</h3>
+            </div>
+            <p id="modalMessage" class="text-sm text-slate-600 mb-6 leading-relaxed">Message details go here.</p>
+            <div class="flex justify-end">
+                <button onclick="closeModal()" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm rounded-xl transition-all shadow-sm cursor-pointer">
+                    Got it
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application JavaScript -->
+    <script>
+        var romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+
+        // Direct Download App File Button using Blob & URL.createObjectURL
+        function downloadAppFile() {
+            var fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            var blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'NumShield-Pro.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(function() {
+                URL.revokeObjectURL(url);
+            }, 1000);
+            showModal('Download Started', 'NumShield-Pro.html has been generated and downloaded to your device. You can now open it directly in Chrome or any browser!', false);
+        }
+
+        // Tab switching logic
+        function switchTab(tabIndex) {
+            var tab1 = document.getElementById('tabContent1');
+            var tab2 = document.getElementById('tabContent2');
+            var btn1 = document.getElementById('tabBtn1');
+            var btn2 = document.getElementById('tabBtn2');
+
+            if (tabIndex === 1) {
+                tab1.classList.remove('hidden');
+                tab2.classList.add('hidden');
+                btn1.className = "px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 bg-white text-indigo-600 shadow-sm cursor-pointer";
+                btn2.className = "px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer";
+            } else {
+                tab2.classList.remove('hidden');
+                tab1.classList.add('hidden');
+                btn2.className = "px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 bg-white text-indigo-600 shadow-sm cursor-pointer";
+                btn1.className = "px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer";
+            }
+        }
+
+        // Collapsible section toggle helper
+        function toggleSection(bodyId, chevronId) {
+            var body = document.getElementById(bodyId);
+            var chevron = document.getElementById(chevronId);
+            body.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        // Global Clipboard Tool actions
+        function pasteToGlobalClipboard() {
+            navigator.clipboard.readText().then(function(text) {
+                document.getElementById('globalClipboardText').value = text;
+                showModal('Pasted', 'Clipboard content successfully loaded into box.', false);
+            }).catch(function(err) {
+                showModal('Permission Required', 'Unable to read from clipboard directly due to browser security. Please paste manually into the box.', true);
+            });
+        }
+
+        function copyFromGlobalClipboard() {
+            var val = document.getElementById('globalClipboardText').value;
+            if (!val.trim()) {
+                showModal('Empty Box', 'There is nothing in the clipboard box to copy.', true);
+                return;
+            }
+            copyToClipboard(val);
+            showModal('Copied!', 'Box content copied to clipboard successfully.', false);
+        }
+
+        function clearGlobalClipboard() {
+            document.getElementById('globalClipboardText').value = '';
+        }
+
+        // Custom Modal notification system
+        function showModal(title, message, isError) {
+            var modal = document.getElementById('customModal');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            
+            var iconBg = document.getElementById('modalIconBg');
+            if (isError) {
+                iconBg.className = "p-2 rounded-xl bg-rose-50 text-rose-600";
+            } else {
+                iconBg.className = "p-2 rounded-xl bg-emerald-50 text-emerald-600";
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        // Initialize Tab 1 Input Grid (5 rows x 7 cols) with Auto-Advance
+        function initTab1Grid() {
+            var grid = document.getElementById('tab1Grid');
+            grid.innerHTML = '';
+            for (var r = 0; r < 5; r++) {
+                var rowDiv = document.createElement('div');
+                rowDiv.className = "flex flex-wrap items-center gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100";
+                
+                var label = document.createElement('span');
+                label.className = "text-xs font-bold text-slate-500 w-16 uppercase tracking-wider";
+                label.innerText = 'Set ' + romanNumerals[r];
+                rowDiv.appendChild(label);
+
+                for (var c = 0; c < 7; c++) {
+                    var input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '1';
+                    input.max = '49';
+                    input.placeholder = '#';
+                    input.className = "tab1-input w-12 h-12 text-center bg-white border border-slate-300 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all";
+                    
+                    input.addEventListener('input', (function(inpElem) {
+                        return function() {
+                            validateAndAdvance(inpElem, '.tab1-input');
+                            updateTab1Count();
+                        };
+                    })(input));
+
+                    rowDiv.appendChild(input);
+                }
+                grid.appendChild(rowDiv);
+            }
+            updateTab1Count();
+        }
+
+        // Initialize Tab 2 Input Row (1 set of 6 numbers) with Auto-Advance
+        function initTab2Input() {
+            var row = document.getElementById('tab2InputRow');
+            row.innerHTML = '';
+            for (var i = 0; i < 6; i++) {
+                var wrapper = document.createElement('div');
+                wrapper.className = "flex flex-col space-y-1";
+                
+                var label = document.createElement('label');
+                label.className = "text-xs font-semibold text-slate-500";
+                label.innerText = 'Number ' + (i + 1);
+                
+                var input = document.createElement('input');
+                input.type = 'number';
+                input.min = '1';
+                input.max = '49';
+                input.placeholder = 'e.g. ' + (i * 7 + 5);
+                input.className = "tab2-input w-full h-12 text-center bg-slate-50 border border-slate-300 rounded-xl text-base font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all";
+                
+                input.addEventListener('input', (function(inpElem) {
+                    return function() {
+                        validateAndAdvance(inpElem, '.tab2-input');
+                    };
+                })(input));
+                
+                wrapper.appendChild(label);
+                wrapper.appendChild(input);
+                row.appendChild(wrapper);
+            }
+        }
+
+        // Validate range 1-49 and handle auto-advance
+        function validateAndAdvance(input, selector) {
+            var val = input.value;
+            if (val !== '') {
+                var num = parseInt(val);
+                if (num < 1) input.value = 1;
+                if (num > 49) input.value = 49;
+            }
+
+            if (val.length >= 2 || (val.length === 1 && parseInt(val) >= 5)) {
+                var allInputs = Array.from(document.querySelectorAll(selector));
+                var currentIndex = allInputs.indexOf(input);
+                if (currentIndex > -1 && currentIndex < allInputs.length - 1) {
+                    allInputs[currentIndex + 1].focus();
+                }
+            }
+        }
+
+        function updateTab1Count() {
+            var inputs = document.querySelectorAll('.tab1-input');
+            var count = 0;
+            inputs.forEach(function(inp) {
+                if (inp.value.trim() !== '') count++;
+            });
+            document.getElementById('tab1Count').innerText = count;
+        }
+
+        function fillTab1Sample() {
+            var sampleSets = [
+                [5, 12, 18, 25, 33, 41, 48],
+                [3, 12, 22, 25, 30, 42, 49],
+                [5, 15, 25, 35, 45, 12, 22],
+                [7, 14, 21, 28, 35, 42, 49],
+                [1, 10, 20, 30, 40, 18, 33]
+            ];
+            var rows = document.querySelectorAll('#tab1Grid > div');
+            rows.forEach(function(row, rIdx) {
+                var inputs = row.querySelectorAll('.tab1-input');
+                inputs.forEach(function(inp, cIdx) {
+                    inp.value = sampleSets[rIdx][cIdx];
+                });
+            });
+            updateTab1Count();
+        }
+
+        function clearTab1Inputs() {
+            document.querySelectorAll('.tab1-input').forEach(function(inp) { inp.value = ''; });
+            updateTab1Count();
+            document.getElementById('tab1ResultsContainer').classList.add('hidden');
+        }
+
+        function copyAllTab1Inputs() {
+            var rows = document.querySelectorAll('#tab1Grid > div');
+            var fullText = '';
+            rows.forEach(function(row, idx) {
+                var inputs = row.querySelectorAll('.tab1-input');
+                var nums = Array.from(inputs).map(function(i) { return i.value.trim() !== '' ? i.value : '-'; }).join(', ');
+                fullText += 'Set ' + romanNumerals[idx] + ': ' + nums + '\n';
+            });
+            copyToClipboard(fullText);
+            showModal('Success', 'All 5 Tab 1 input sets copied to clipboard!', false);
+        }
+
+        function fillTab2Sample() {
+            var sample = [5, 15, 25, 35, 45, 42];
+            var inputs = document.querySelectorAll('.tab2-input');
+            inputs.forEach(function(inp, idx) { inp.value = sample[idx]; });
+        }
+
+        function clearTab2Inputs() {
+            document.querySelectorAll('.tab2-input').forEach(function(inp) { inp.value = ''; });
+            document.getElementById('offsetResultsContainer').classList.add('hidden');
+        }
+
+        function getTab1Data() {
+            var rows = document.querySelectorAll('#tab1Grid > div');
+            var occurrenceMap = {};
+            var allNumbers = [];
+            var rawSets = [];
+
+            rows.forEach(function(row, rIdx) {
+                var inputs = row.querySelectorAll('.tab1-input');
+                var setNums = [];
+                inputs.forEach(function(inp, cIdx) {
+                    if (inp.value.trim() !== '') {
+                        var val = parseInt(inp.value);
+                        if (val >= 1 && val <= 49) {
+                            allNumbers.push(val);
+                            setNums.push(val);
+                            if (!occurrenceMap[val]) occurrenceMap[val] = [];
+                            occurrenceMap[val].push({ set: rIdx + 1, pos: cIdx + 1 });
+                        }
+                    }
+                });
+                rawSets.push(setNums);
+            });
+            return { occurrenceMap: occurrenceMap, allNumbers: allNumbers, rawSets: rawSets };
+        }
+
+        function calculateAndGenerateTab1() {
+            var tab1Data = getTab1Data();
+            var occurrenceMap = tab1Data.occurrenceMap;
+            var allNumbers = tab1Data.allNumbers;
+            var rawSets = tab1Data.rawSets;
+
+            if (allNumbers.length === 0) {
+                showModal('Input Required', 'Please enter at least a few numbers in the 5 sets before generating.', true);
+                return;
+            }
+
+            var uniqueNumbers = Object.keys(occurrenceMap).map(Number).sort(function(a, b) { return a - b; });
+            var presentSet = new Set(allNumbers);
+            var missingNumbers = [];
+            for (var i = 1; i <= 49; i++) {
+                if (!presentSet.has(i)) {
+                    missingNumbers.push(i);
+                }
+            }
+
+            if (missingNumbers.length < 6) {
+                showModal('Pool Too Small', 'You have too many numbers filled. Only ' + missingNumbers.length + ' missing numbers remain (at least 6 are required to generate sets of 6).', true);
+                return;
+            }
+
+            // 1. Render Set 1 vs Remaining Sets Comparison
+            renderSet1Comparison(rawSets);
+
+            // 2. Render Missing Numbers (1-49 Not in 5 Sets)
+            renderMissingNumbers(missingNumbers);
+
+            // 3. Render 10 Random Generated Sets (6 numbers each)
+            var generatedSets = [];
+            for (var s = 0; s < 10; s++) {
+                var pool = missingNumbers.slice();
+                for (var j = pool.length - 1; j > 0; j--) {
+                    var randIdx = Math.floor(Math.random() * (j + 1));
+                    var temp = pool[j];
+                    pool[j] = pool[randIdx];
+                    pool[randIdx] = temp;
+                }
+                var slice = pool.slice(0, 6).sort(function(a, b) { return a - b; });
+                generatedSets.push(slice);
+            }
+            renderGeneratedSets(generatedSets);
+
+            // 4. Render Entered Numbers & Occurrence Mapping at the bottom
+            renderOccurrenceCards(occurrenceMap, uniqueNumbers);
+
+            document.getElementById('tab1ResultsContainer').classList.remove('hidden');
+        }
+
+        function renderSet1Comparison(rawSets) {
+            var container = document.getElementById('set1CompareList');
+            container.innerHTML = '';
+            var set1 = rawSets[0] || [];
+
+            for (var s = 1; s < 5; s++) {
+                var otherSet = rawSets[s] || [];
+                var rowDiv = document.createElement('div');
+                rowDiv.className = "flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl gap-3";
+
+                var leftLabel = document.createElement('div');
+                leftLabel.className = "text-xs font-bold text-slate-700 uppercase tracking-wider min-w-[120px]";
+                leftLabel.innerText = 'Set I vs Set ' + romanNumerals[s];
+
+                var matchesDiv = document.createElement('div');
+                matchesDiv.className = "flex flex-wrap items-center gap-2";
+
+                var matchFound = false;
+                set1.forEach(function(num, idx) {
+                    var otherIdx = otherSet.indexOf(num);
+                    if (otherIdx > -1) {
+                        matchFound = true;
+                        var badge = document.createElement('div');
+                        badge.className = "flex items-center space-x-1.5 px-3 py-1.5 bg-white border border-indigo-200 rounded-lg shadow-2xs text-xs font-semibold text-slate-700";
+                        badge.innerHTML = '<span class="text-indigo-600 font-bold">#' + (num < 10 ? '0' + num : num) + '</span><span class="text-slate-400">|</span><span>Set I (Pos ' + (idx + 1) + ') = Set ' + romanNumerals[s] + ' (Pos ' + (otherIdx + 1) + ')</span>';
+                        matchesDiv.appendChild(badge);
+                    }
+                });
+
+                if (!matchFound) {
+                    var noMatch = document.createElement('span');
+                    noMatch.className = "text-xs text-slate-400 italic";
+                    noMatch.innerText = "No matching numbers";
+                    matchesDiv.appendChild(noMatch);
+                }
+
+                rowDiv.appendChild(leftLabel);
+                rowDiv.appendChild(matchesDiv);
+                container.appendChild(rowDiv);
+            }
+        }
+
+        function renderMissingNumbers(missingNumbers) {
+            var container = document.getElementById('missingResultList');
+            container.innerHTML = '';
+            missingNumbers.forEach(function(num) {
+                var badge = document.createElement('span');
+                badge.className = "w-9 h-9 bg-white border border-slate-200 font-bold text-indigo-600 rounded-xl flex items-center justify-center text-sm shadow-2xs";
+                badge.innerText = num < 10 ? '0' + num : num;
+                container.appendChild(badge);
+            });
+        }
+
+        function copyMissingNumbers() {
+            var container = document.getElementById('missingResultList');
+            var badges = container.querySelectorAll('span.font-bold');
+            if (badges.length === 0) {
+                showModal('Empty', 'No missing numbers available.', true);
+                return;
+            }
+            var text = Array.from(badges).map(function(b) { return b.innerText; }).join(', ');
+            copyToClipboard(text);
+            showModal('Copied!', 'Missing numbers copied: ' + text, false);
+        }
+
+        function renderOccurrenceCards(occurrenceMap, uniqueNumbers) {
+            var container = document.getElementById('matchedResultList');
+            container.innerHTML = '';
+
+            uniqueNumbers.forEach(function(num) {
+                var card = document.createElement('div');
+                card.className = "flex items-center space-x-3 p-3 bg-white border border-slate-200/80 rounded-xl shadow-2xs";
+
+                var badge = document.createElement('span');
+                badge.className = "w-10 h-10 bg-indigo-600 text-white font-bold rounded-lg flex items-center justify-center text-sm shrink-0";
+                badge.innerText = num < 10 ? '0' + num : num;
+
+                var details = document.createElement('div');
+                details.className = "flex flex-col text-xs text-slate-600";
+                
+                var occList = occurrenceMap[num].map(function(o) { return 'Set ' + romanNumerals[o.set - 1] + ' Pos ' + o.pos; }).join(', ');
+                details.innerHTML = '<span class="font-bold text-slate-900">Number ' + (num < 10 ? '0' + num : num) + '</span><span class="text-[11px] text-slate-500 mt-0.5">' + occList + '</span>';
+
+                card.appendChild(badge);
+                card.appendChild(details);
+                container.appendChild(card);
+            });
+        }
+
+        function renderGeneratedSets(sets) {
+            var container = document.getElementById('generatedSetsList');
+            container.innerHTML = '';
+
+            sets.forEach(function(set, idx) {
+                var row = document.createElement('div');
+                row.className = "flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl hover:border-indigo-200 transition-all gap-3";
+                
+                var leftPart = document.createElement('div');
+                leftPart.className = "flex items-center space-x-4";
+
+                var label = document.createElement('span');
+                label.className = "text-xs font-bold text-slate-400 uppercase tracking-wider w-12";
+                label.innerText = romanNumerals[idx] + '.';
+                leftPart.appendChild(label);
+
+                var numbersDiv = document.createElement('div');
+                numbersDiv.className = "flex items-center space-x-2";
+                set.forEach(function(num) {
+                    var badge = document.createElement('span');
+                    badge.className = "w-8 h-8 bg-white border border-slate-200 font-bold text-indigo-600 rounded-lg flex items-center justify-center text-sm shadow-2xs";
+                    badge.innerText = num < 10 ? '0' + num : num;
+                    numbersDiv.appendChild(badge);
+                });
+                leftPart.appendChild(numbersDiv);
+
+                var copyBtn = document.createElement('button');
+                copyBtn.className = "px-3 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg transition-colors flex items-center space-x-1 cursor-pointer";
+                copyBtn.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg><span>Copy Set</span>';
+                copyBtn.onclick = (function(setArr, sIdx) {
+                    return function() {
+                        var text = setArr.join(', ');
+                        copyToClipboard(text);
+                        showModal('Copied!', 'Set ' + romanNumerals[sIdx] + ' copied: ' + text, false);
+                    };
+                })(set, idx);
+
+                row.appendChild(leftPart);
+                row.appendChild(copyBtn);
+                container.appendChild(row);
+            });
+        }
+
+        function copySection(containerId, title) {
+            var container = document.getElementById(containerId);
+            if (!container || container.children.length === 0) {
+                showModal('Empty', 'No data available in ' + title + ' to copy.', true);
+                return;
+            }
+            var lines = [];
+            Array.from(container.children).forEach(function(child) {
+                lines.push(child.innerText.replace(/\n/g, ' - '));
+            });
+            var fullText = lines.join('\n');
+            copyToClipboard(fullText);
+            showModal('Copied!', title + ' copied to clipboard!', false);
+        }
+
+        function copyAll10Sets() {
+            var rows = document.querySelectorAll('#generatedSetsList > div');
+            if (rows.length === 0) {
+                showModal('Empty', 'No generated sets available.', true);
+                return;
+            }
+            var fullText = '';
+            rows.forEach(function(row, idx) {
+                var badges = row.querySelectorAll('span.font-bold.text-indigo-600');
+                var nums = Array.from(badges).map(function(b) { return b.innerText; }).join(', ');
+                fullText += 'Set ' + romanNumerals[idx] + ': ' + nums + '\n';
+            });
+            copyToClipboard(fullText);
+            showModal('Success', 'All 10 generated sets copied to clipboard!', false);
+        }
+
+        // TAB 2: Offset Analyzer Calculation & Horizontal Rendering (4 sets)
+        function calculateOffsets() {
+            var inputs = document.querySelectorAll('.tab2-input');
+            var numbers = [];
+            var isValid = true;
+
+            inputs.forEach(function(inp) {
+                if (inp.value.trim() === '') {
+                    isValid = false;
+                } else {
+                    var val = parseInt(inp.value);
+                    if (val < 1 || val > 49) isValid = false;
+                    numbers.push(val);
+                }
+            });
+
+            if (!isValid || numbers.length !== 6) {
+                showModal('Invalid Input', 'Please enter all 6 numbers between 1 and 49 for Offset Analysis.', true);
+                return;
+            }
+
+            renderOffsetRows(numbers, false);
+            document.getElementById('offsetResultsContainer').classList.remove('hidden');
+        }
+
+        function compareWithTab1() {
+            var inputs = document.querySelectorAll('.tab2-input');
+            var numbers = [];
+            inputs.forEach(function(inp) {
+                if (inp.value.trim() !== '') numbers.push(parseInt(inp.value));
+            });
+
+            if (numbers.length !== 6) {
+                showModal('Input Error', 'Please ensure all 6 offset numbers are entered first.', true);
+                return;
+            }
+
+            var tab1Data = getTab1Data();
+            var allNumbers = tab1Data.allNumbers;
+            if (allNumbers.length === 0) {
+                showModal('Tab 1 Empty', 'Tab 1 contains no input numbers. Please fill Tab 1 sets first before running comparison.', true);
+                return;
+            }
+
+            renderOffsetRows(numbers, true);
+            showModal('Comparison Active', 'Tab 2 results successfully cross-verified with Tab 1 inputs!', false);
+        }
+
+        function renderOffsetRows(numbers, doCompare) {
+            var occurrenceMap = getTab1Data().occurrenceMap;
+
+            var calcOffsetSet = function(offset) {
+                return numbers.map(function(n) {
+                    var res = n + offset;
+                    if (res < 1) return n;
+                    if (res > 49) return 49;
+                    return res;
+                });
+            };
+
+            var offsetConfigs = [
+                { label: 'Set I (n-2)', offset: -2 },
+                { label: 'Set II (n-1)', offset: -1 },
+                { label: 'Set III (n+1)', offset: 1 },
+                { label: 'Set IV (n+2)', offset: 2 }
+            ];
+
+            var container = document.getElementById('offsetRowsList');
+            container.innerHTML = '';
+
+            offsetConfigs.forEach(function(config) {
+                var setValues = calcOffsetSet(config.offset);
+
+                var rowDiv = document.createElement('div');
+                rowDiv.className = "flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-slate-50 border border-slate-200/80 rounded-xl gap-4";
+
+                var leftInfo = document.createElement('div');
+                leftInfo.className = "flex items-center space-x-3 min-w-[140px]";
+                leftInfo.innerHTML = '<span class="text-xs font-bold text-slate-700 uppercase tracking-wider">' + config.label + '</span>';
+
+                var numbersDiv = document.createElement('div');
+                numbersDiv.className = "flex flex-wrap items-center gap-2.5";
+
+                setValues.forEach(function(val) {
+                    var occs = occurrenceMap[val];
+                    var isMatched = doCompare && occs && occs.length > 0;
+
+                    var card = document.createElement('div');
+                    if (isMatched) {
+                        card.className = "flex flex-col items-center justify-center p-2 bg-rose-50 border border-rose-300 rounded-xl shadow-2xs min-w-[80px]";
+                    } else {
+                        card.className = "flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-xl shadow-2xs min-w-[80px]";
+                    }
+
+                    var numSpan = document.createElement('span');
+                    numSpan.className = isMatched ? "text-sm font-bold text-rose-700" : "text-sm font-bold text-slate-700";
+                    numSpan.innerText = val < 10 ? '0' + val : val;
+                    card.appendChild(numSpan);
+
+                    var metaSpan = document.createElement('span');
+                    metaSpan.className = "text-[10px] text-center mt-1 font-medium leading-tight";
+                    if (isMatched) {
+                        metaSpan.className += " text-rose-600";
+                        metaSpan.innerText = occs.map(function(o) { return 'Set ' + romanNumerals[o.set - 1] + ' Pos ' + o.pos; }).join(', ');
+                    } else {
+                        metaSpan.className += " text-slate-400";
+                        metaSpan.innerText = "-";
+                    }
+                    card.appendChild(metaSpan);
+
+                    numbersDiv.appendChild(card);
+                });
+
+                var copyBtn = document.createElement('button');
+                copyBtn.className = "px-3 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg transition-colors flex items-center space-x-1 shrink-0 cursor-pointer";
+                copyBtn.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg><span>Copy Set</span>';
+                copyBtn.onclick = (function(setArr, lbl) {
+                    return function() {
+                        var setStr = setArr.join(', ');
+                        copyToClipboard(setStr);
+                        showModal('Copied!', lbl + ' copied: ' + setStr, false);
+                    };
+                })(setValues, config.label);
+
+                rowDiv.appendChild(leftInfo);
+                rowDiv.appendChild(numbersDiv);
+                rowDiv.appendChild(copyBtn);
+                container.appendChild(rowDiv);
+            });
+        }
+
+        function copyAllOffsets() {
+            var rows = document.querySelectorAll('#offsetRowsList > div');
+            if (rows.length === 0) {
+                showModal('Empty', 'No offset results available.', true);
+                return;
+            }
+            var fullText = '';
+            rows.forEach(function(row) {
+                var label = row.querySelector('span.text-xs.font-bold').innerText;
+                var numbers = Array.from(row.querySelectorAll('.flex.flex-col.items-center')).map(function(card) {
+                    return card.querySelector('span.text-sm').innerText;
+                });
+                fullText += label + ': ' + numbers.join(', ') + '\n';
+            });
+            copyToClipboard(fullText);
+            showModal('Success', 'All 4 offset sets copied to clipboard!', false);
+        }
+
+        function copyToClipboard(text) {
+            var textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Clipboard copy failed', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        window.onload = function() {
+            initTab1Grid();
+            initTab2Input();
+        }
+    </script>
+</body>
+</html>
